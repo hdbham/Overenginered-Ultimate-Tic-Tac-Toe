@@ -1,0 +1,46 @@
+/* Styling for the container */
+.tictactoe-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-gap: 10px;
+    margin: 20px;
+  }
+  
+  /* Styling for grid cells */
+  .grid-cell {
+    border: 2px solid black;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-gap: 5px;
+  }
+  
+  /* Styling for individual cells within the Tic-Tac-Toe boards */
+  .cell {
+    border: 1px solid black;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    cursor: pointer;
+    user-select: none;
+    background-color: #f0f0f0;
+  }
+  
+  /* Styling for the current player display */
+  .current-player {
+    font-size: 18px;
+    margin-top: 10px;
+    grid-column: span 3;
+    text-align: center;
+  }
+  
+  /* Define styles for the red and blue classes */
+.sub-cell.red {
+    background-color: red;
+    color: white; /* Optional: Change text color for better visibility */
+}
+
+.sub-cell.blue {
+    background-color: blue;
+    color: white; /* Optional: Change text color for better visibility */
+}
