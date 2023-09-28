@@ -25,6 +25,8 @@ function highlightCurrentSubGrid() {
         });
     }
 }
+
+
     // Function to check if a sub-grid is full
     function isSubGridFull(subGrid) {
         for (const cell of subGrid) {
@@ -51,12 +53,7 @@ function highlightCurrentSubGrid() {
                     const parentSubGrid = clickedSubGrid;
                     const subCellsInGrid = parentSubGrid.querySelectorAll(".sub-cell");
                     const winner = checkWin(subCellsInGrid);
-                    const gameWinner = checkWin(allSubGrids);
-
-                    if (gameWinner) {
-                        alert((gameWinner + " wins the game"))
-                    }
-    
+                 
                     if (winner) {
                         alert(winner + " wins in this sub-grid!");
     
@@ -72,6 +69,7 @@ function highlightCurrentSubGrid() {
                     }
                     currentPlayer = currentPlayer === "red" ? "blue" : "red";
                     highlightCurrentSubGrid()
+                    checkGameWin();
                     // Toggle the current player
                 } else {
                     // Handle the case where the player clicked on an invalid sub-grid
@@ -83,6 +81,30 @@ function highlightCurrentSubGrid() {
             }
         });
     });
+    function checkGameWin() {
+        const winCombinations = [
+            [0, 1, 2], [3, 4, 5], [6, 7, 8], // Rows
+            [0, 3, 6], [1, 4, 7], [2, 5, 8], // Columns
+            [0, 4, 8], [2, 4, 6] // Diagonals
+        ];
+    
+        for (const combination of winCombinations) {
+            const [a, b, c] = combination;
+            const subGridA = allSubGrids[a];
+            const subGridB = allSubGrids[b];
+            const subGridC = allSubGrids[c];
+    
+            if (
+                (subGridA.classList.contains("red") && subGridB.classList.contains("red") && subGridC.classList.contains("red")) ||
+                (subGridA.classList.contains("blue") && subGridB.classList.contains("blue") && subGridC.classList.contains("blue"))
+            ) {
+                alert(subGridA.classList.contains("red") ? "Red" : "Blue" + " wins the game!");
+                confetti();
+                return;
+            }
+        }
+    }
+    
 
 
     function checkWin(subGrid) {
@@ -113,6 +135,20 @@ function highlightCurrentSubGrid() {
     function highlightWinningCells(subGrid, combination) {
         for (const index of combination) {
             subGrid[index].classList.add(currentPlayer);
+            subGrid[index].closest(".sub-grid").classList.add(currentPlayer);
         }
     }
+
+    function isGameDraw() {
+        for (const subGrid of allSubGrids) {
+            if (!isSubGridFull(subGrid.querySelectorAll(".sub-cell")) && !checkWin(subGrid.querySelectorAll(".sub-cell"))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+
+    // Initial highlight for the center sub-grid
+    highlightCurrentSubGrid();
 });
