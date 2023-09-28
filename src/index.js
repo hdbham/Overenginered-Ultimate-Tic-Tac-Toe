@@ -1,21 +1,30 @@
 document.addEventListener("DOMContentLoaded", function () {
     const allSubGrids = document.querySelectorAll(".sub-grid");
     const allSubCells = document.querySelectorAll(".sub-cell");
-
+    const currentPlayerTag = document.getElementById("current-player");
     let currentPlayer = "red";
     let currentSubGrid = document.querySelector(".center-sub-grid");
 
     // Function to highlight the current sub-grid
-    function highlightCurrentSubGrid() {
-        allSubGrids.forEach(function (subGrid) {
-            subGrid.classList.remove("highlighted");
-        });
+function highlightCurrentSubGrid() {
+    allSubGrids.forEach(function (subGrid) {
+        subGrid.classList.remove("highlighted");
+    });
 
-        if (currentSubGrid) {
-            currentSubGrid.classList.add("highlighted");
-        }
+    if (currentSubGrid) {
+        currentSubGrid.classList.add("highlighted");
     }
 
+    // Check if the current sub-grid is full
+    const subCellsInGrid = currentSubGrid.querySelectorAll(".sub-cell");
+    if (isSubGridFull(subCellsInGrid)) {
+        // If it's full, set currentSubGrid to null (allow any sub-grid)
+        currentSubGrid = null;
+        allSubGrids.forEach(function (subGrid) {
+            subGrid.classList.add("highlighted");
+        });
+    }
+}
     // Function to check if a sub-grid is full
     function isSubGridFull(subGrid) {
         for (const cell of subGrid) {
@@ -26,42 +35,54 @@ document.addEventListener("DOMContentLoaded", function () {
         return true;
     }
     allSubCells.forEach(function (subCell) {
-    subCell.addEventListener("click", function () {
-        if (!subCell.classList.contains("red") && !subCell.classList.contains("blue")) {
-            const clickedSubGrid = subCell.closest(".sub-grid");
-            if (currentSubGrid === null || clickedSubGrid === currentSubGrid) {
-                subCell.classList.add(currentPlayer);
-                currentPlayer = currentPlayer === "red" ? "blue" : "red";
+        subCell.addEventListener("click", function () {
+            if (!subCell.classList.contains("red") && !subCell.classList.contains("blue")) {
+                const clickedSubGrid = subCell.closest(".sub-grid");
+                
+                if (currentSubGrid === null || clickedSubGrid === currentSubGrid) {
+                    // Mark the clicked cell with the current player's color
+                    subCell.classList.add(currentPlayer);
+    
+                    // Get the data-position attribute of the clicked cell
+                    const cellNum = subCell.getAttribute("data-position");
+                    currentSubGrid = document.getElementById(cellNum);
 
-                const parentSubGrid = subCell.closest(".sub-grid");
-                const subCellsInGrid = parentSubGrid.querySelectorAll(".sub-cell");
+                    // Check for a win in the sub-grid
+                    const parentSubGrid = clickedSubGrid;
+                    const subCellsInGrid = parentSubGrid.querySelectorAll(".sub-cell");
+                    const winner = checkWin(subCellsInGrid);
+                    const gameWinner = checkWin(allSubGrids);
 
-                const winner = checkWin(subCellsInGrid);
+                    if (gameWinner) {
+                        alert((gameWinner + " wins the game"))
+                    }
+    
+                    if (winner) {
+                        alert(winner + " wins in this sub-grid!");
+    
+                        subCellsInGrid.forEach(function (cell) {
+                            cell.classList.remove("red", "blue");
+                            cell.classList.add(winner);
+                        });
 
-                if (winner) {
-                    alert(winner + " wins in this sub-grid!");
-
-                    subCellsInGrid.forEach(function (cell) {
-                        cell.classList.remove("red", "blue");
-                        cell.classList.add(winner);
-                    });
-
-                    // Update the current sub-grid to null (allow any sub-grid)
-                    currentSubGrid = null;
-                    highlightCurrentSubGrid();
-                } else if (isSubGridFull(subCellsInGrid)) {
-                    // Update the current sub-grid to null (allow any sub-grid)
-                    currentSubGrid = null;
-                    highlightCurrentSubGrid();
+                        currentSubGrid = null;
+                    } else if (isSubGridFull(subCellsInGrid)) {
+                        // Update the current sub-grid to null (allow any sub-grid)
+                        currentSubGrid = null;
+                    }
+                    currentPlayer = currentPlayer === "red" ? "blue" : "red";
+                    highlightCurrentSubGrid()
+                    // Toggle the current player
                 } else {
-                    // Update the current sub-grid to the one corresponding to the clicked cell
-                    currentSubGrid = clickedSubGrid;
-                    highlightCurrentSubGrid();
+                    // Handle the case where the player clicked on an invalid sub-grid
+                    alert("Invalid move. You must play in the highlighted sub-grid.");
                 }
+
+                currentPlayerTag.innerHTML = "";
+                currentPlayerTag.innerHTML = `Current player is ${currentPlayer}`;
             }
-        }
+        });
     });
-});
 
 
     function checkWin(subGrid) {
@@ -91,32 +112,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function highlightWinningCells(subGrid, combination) {
         for (const index of combination) {
-            subGrid[index].classList.add("winner");
+            subGrid[index].classList.add(currentPlayer);
         }
     }
-
-    function isGameDraw() {
-        for (const subGrid of allSubGrids) {
-            if (!isSubGridFull(subGrid.querySelectorAll(".sub-cell")) && !checkWin(subGrid.querySelectorAll(".sub-cell"))) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    function checkGameResult() {
-        if (checkWin(allSubGrids)) {
-            alert(currentPlayer + " wins the game!");
-        } else if (isGameDraw()) {
-            alert("It's a draw!");
-        }
-    }
-
-    // Check for a game result after each move
-    allSubCells.forEach(function (subCell) {
-        subCell.addEventListener("click", checkGameResult);
-    });
-
-    // Initial highlight for the center sub-grid
-    highlightCurrentSubGrid();
 });
